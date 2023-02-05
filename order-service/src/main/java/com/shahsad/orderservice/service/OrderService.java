@@ -19,29 +19,33 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class OrderService {
-    private final WebClient webClient;
     private final OrderRepository orderRepository;
+    private final WebClient webClient;
     public void placeOrder(OrderRequest orderRequest){
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
+
         List<OrderLineItems> orderLineItems = orderRequest.getOrderLineItemsDtoList()
                 .stream()
                 .map(this::mapToDto)
                 .toList();
         order.setOrderLineItemsList(orderLineItems);
-        //order.setOrderLineItemsList().stream().map(orderLineItems -> orderLineItems.getSkuCode());
+
         List<String> skuCodes = order.getOrderLineItemsList().stream()
                 .map(OrderLineItems::getSkuCode)
                 .toList();
-        InventoryResponse[] inventoryResponseArray = webClient.get()
-                .uri("http://inventory-service/api/inventory",
+
+        ///
+        ///
+
+        InventoryResponse[] inventoryResponsArray = webClient.get()
+                .uri("http://localhost:8082/api/inventory",
                         uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build())
                 .retrieve()
                 .bodyToMono(InventoryResponse[].class)
                 .block();
+        boolean allProductsInStock =  Arrays.stream(inventoryResponsArray).allMatch(InventoryResponse::isInStock);
 
-
-        boolean allProductsInStock =  Arrays.stream(inventoryResponseArray).allMatch(InventoryResponse::isInStock);
         if(allProductsInStock){
 
             orderRepository.save(order);
@@ -49,6 +53,14 @@ public class OrderService {
         else {
             throw new IllegalArgumentException("Product Not In Stock, Please Try Again");
         }
+
+        //orderRepository.save(order);
+        //order.setOrderLineItemsList().stream().map(orderLineItems -> orderLineItems.getSkuCode());
+       /*
+
+
+
+        */
 
     }
 

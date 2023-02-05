@@ -13,10 +13,13 @@ import java.util.List;
 @RequestMapping("/api/inventory")
 @RequiredArgsConstructor
 public class InventoryController {
+    //boolean
+    //@PathVariable("sku-code") String
     private final InventoryService inventoryService;
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<InventoryResponse> isInStock(@RequestParam List<String> skuCode) {
-        return inventoryService.isInStock(skuCode);
+       return inventoryService.isInStock(skuCode);
+
     }
 }
