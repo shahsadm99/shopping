@@ -1,2 +1,3 @@
-# shopping
-shopping
+# Shopping Cart using Spring Boot
+
+**Diagram**
